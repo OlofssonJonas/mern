@@ -1,32 +1,19 @@
+import express from 'express'
+import dotenv from 'dotenv'
+import connectDb from "./config/db.js";
 
-const express = require('express')
-const dotenv = require('dotenv');
-const { connectDb } = require('./config/db');
-const { default: Product } = require('./models/product.model');
+import productRoutes from './routes/product.routes.js'
 
-dotenv.config()
 
-const app = express()
+dotenv.config();
 
-app.post('/products', async(req, res) => {
-    const product = req.body;
+const app = express();
 
-    if(!product.name || !product.price || !product.image) {
-        res.status(400).json({success: false, message: 'Please provide all fields'})
-    }
+app.use(express.json());
 
-    const newProduct = new Product(product)
-
-    try {
-        await newProduct.save()
-        res.status(201).json({success: true, data: newProduct})
-
-    } catch (error) {
-        console.log('Failed to create product' + error.message);
-        res.status(500).json({success: false, 'server error'})
-    }
-})
+app.use('/api/products', productRoutes)
 
 app.listen(3000, () => {
-    connectDb()
-    console.log('server is up and running on port 3000')})
+	connectDb();
+	console.log("server is up and running on port 3000");
+});
